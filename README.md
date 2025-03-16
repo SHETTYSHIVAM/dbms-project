@@ -16,7 +16,7 @@
 ---
 
 ## 📂 Tech Stack
-- **Frontend:** React
+- **Frontend:** HTML, CSS, JS
 - **Backend:** FastAPI
 - **Database:** MySQL
 
