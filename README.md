@@ -20,4 +20,5 @@
 - **Backend:** FastAPI
 - **Database:** MySQL
 
----
+# DATABASE SCHEMA
+![Database Schema](dbms-schema.png)
