@@ -9,14 +9,13 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 load_dotenv()
 
-
-
 # ACCESS THE VARIABLES
 MYSQL_USER = os.getenv('MYSQL_USERNAME')
-MYSQL_PASSWORD = MYSQL_PASSWORD = urllib.parse.quote_plus(os.getenv('MYSQL_PASSWORD'))  # Encode special characters
+MYSQL_PASSWORD = urllib.parse.quote_plus(os.getenv('MYSQL_PASSWORD'))  # Encode special characters
 MYSQL_DB = os.getenv('MYSQL_DB')
 MYSQL_HOST = os.getenv('MYSQL_HOST')
 MYSQL_PORT = os.getenv('MYSQL_PORT')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 app = Flask(__name__)
 CORS(app)
@@ -33,7 +32,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{MYSQL_USER}:{M
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-bycrypt = Bcrypt()
+bcrypt = Bcrypt()
 jwt = JWTManager()
 
 # Initialize Flask-Migrate

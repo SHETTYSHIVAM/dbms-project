@@ -2,6 +2,7 @@ from datetime import date
 from werkzeug.security import generate_password_hash, check_password_hash
 from uuid import uuid4
 from config import db
+import enum
 
 class Books(db.Model):
     __tablename__ = 'books'
@@ -62,6 +63,7 @@ class BookCopies(db.Model):
         )
 
 
+
 class Users(db.Model):
     __tablename__ = 'users'
 
@@ -69,7 +71,7 @@ class Users(db.Model):
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    user_type = db.Column(db.Enum("student", "faculty", name="user_type_enum"), nullable=False)  # FIXED
+    user_type = db.Column(db.Enum('student', 'faculty', 'admin'), nullable=False)
 
     def to_dict(self):
         return {
@@ -81,12 +83,14 @@ class Users(db.Model):
 
     @classmethod
     def from_dict(cls, data):
-        return cls(
+        user = cls(
             name=data.get("name"),
             email=data.get("email"),
-            password_hash=cls.hash_password(data.get("password")),
-            user_type=data.get("user_type")
+            user_type=UserType(data.get("user_type"))
         )
+        if "password" in data:
+            user.set_password(data["password"])  # Hash password correctly
+        return user
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

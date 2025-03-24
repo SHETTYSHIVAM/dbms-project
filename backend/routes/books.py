@@ -7,20 +7,20 @@ books = Blueprint('books', __name__, url_prefix='/books')
 
 
 # Get all books
-@books.route('/books', methods=['GET'])
+@books.route('/', methods=['GET'])
 def get_books():
     all_books = Books.query.all()
     return jsonify([book.to_dict() for book in all_books])
 
 
-@books.route('/books/<string:id_>', methods=['GET'])
+@books.route('/<string:id_>', methods=['GET'])
 def get_book(id_):
     book = Books.query.get_or_404(id_, description="Book not found")
     return jsonify(book.to_dict())
 
 
 # Add a new book
-@books.route('/book', methods=['POST'])
+@books.route('/', methods=['POST'])
 def add_book():
     data = request.get_json()
 
@@ -43,7 +43,7 @@ def add_book():
 
 
 # Update a book
-@books.route('/books/<string:isbn>', methods=['PUT'])
+@books.route('/<string:isbn>', methods=['PUT'])
 def update_book(isbn):
     book = Books.query.get_or_404(isbn, description='Book not found')
 
@@ -57,7 +57,7 @@ def update_book(isbn):
 
 
 # Delete a book
-@books.route('/books/<string:id_>', methods=['DELETE'])
+@books.route('/<string:id_>', methods=['DELETE'])
 def delete_book(id_):
     book = Books.query.get_or_404(id_, description='Book not found')
 
