@@ -17,7 +17,7 @@
 
 ## 📂 Tech Stack
 - **Frontend:** HTML, CSS, JS
-- **Backend:** FastAPI
+- **Backend:** Flask
 - **Database:** MySQL
 
 # DATABASE SCHEMA
