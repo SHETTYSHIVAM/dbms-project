@@ -6,7 +6,7 @@ import os
 import urllib
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager
 load_dotenv()
 
 # ACCESS THE VARIABLES
@@ -16,12 +16,14 @@ MYSQL_DB = os.getenv('MYSQL_DB')
 MYSQL_HOST = os.getenv('MYSQL_HOST')
 MYSQL_PORT = os.getenv('MYSQL_PORT')
 SECRET_KEY = os.getenv('SECRET_KEY')
+JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
 app = Flask(__name__)
 CORS(app)
 
 UPLOAD_FOLDER = 'static/book_images/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure the folder exists
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -31,9 +33,11 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
-bcrypt = Bcrypt()
-jwt = JWTManager()
+app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
+app.config['SECRET_KEY'] = SECRET_KEY
 
+db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
 # Initialize Flask-Migrate
 migrate = Migrate(app, db)

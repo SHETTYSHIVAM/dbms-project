@@ -2,7 +2,7 @@ from datetime import date
 from werkzeug.security import generate_password_hash, check_password_hash
 from uuid import uuid4
 from config import db
-import enum
+import datetime
 
 class Books(db.Model):
     __tablename__ = 'books'
@@ -72,6 +72,8 @@ class Users(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     user_type = db.Column(db.Enum('student', 'faculty', 'admin'), nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+
 
     def to_dict(self):
         return {
@@ -86,7 +88,7 @@ class Users(db.Model):
         user = cls(
             name=data.get("name"),
             email=data.get("email"),
-            user_type=UserType(data.get("user_type"))
+            user_type=data.get("user_type")
         )
         if "password" in data:
             user.set_password(data["password"])  # Hash password correctly
@@ -97,6 +99,9 @@ class Users(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def get_id(self):
+        return self.id
 
 
 class BorrowTransactions(db.Model):
@@ -195,3 +200,9 @@ class Fines(db.Model):
             amount=data.get('amount'),
             status=data.get('status', 'unpaid')
         )
+
+
+class TokenBlocklist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(36), nullable=False, unique=True)  # JWT ID
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow())

@@ -1,50 +1,50 @@
 from flask import Blueprint, request, jsonify
-import jwt
-import datetime
-from config import db, SECRET_KEY
+from models import TokenBlocklist
+from config import db
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
 from models import Users
 
-auth = Blueprint('auth', __name__, url_prefix='/auth')
+auth = Blueprint("auth", __name__, url_prefix="/auth")
 
-@auth.route('/login', methods=['POST'])
+@auth.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    email = data.get("email")
-    password = data.get("password")
+    user = Users.query.filter_by(email=data["email"]).first()
 
-    user = Users.query.filter_by(email=email).first()
+    if user and user.check_password(data["password"]):
+        access_token = create_access_token(identity=user.id, fresh=True)
+        refresh_token = create_refresh_token(identity=user.id)
+        return jsonify({"access_token": access_token, "refresh_token": refresh_token})
+    return jsonify({"error": "Invalid email or password"}), 401
 
-    if not user or not user.check_password(password):
-        return jsonify({"message": "Invalid email or password"}), 401
-
-    # Generate JWT token
-    token = jwt.encode(
-        {
-            "user_id": user.id,
-            "user_type": user.user_type,
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=2)
-        },
-        SECRET_KEY,
-        algorithm="HS256"
-    )
-
-    return jsonify({"token": token, "user_type": user.user_type})
-
-@auth.route('/register', methods=['POST'])
+@auth.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
-    user = Users.query.filter_by(email=data.get("email")).first()
+    user = Users.query.filter_by(email=data["email"]).first()
     if user:
-        return jsonify({"message": "Email already registered"}), 400
-
-    new_user = Users(
-        name=data.get("name"),
-        email=data.get("email"),
-        user_type=data.get("user_type")
-    )
-    new_user.set_password(data.get("password"))
-
-    db.session.add(new_user)
+        return jsonify({"error": "Email already registered"}), 401
+    user =  Users(email=data["email"], name=data["username"], user_type=data["user_type"])
+    user.set_password(data["password"])
+    db.session.add(user)
     db.session.commit()
+    access_token = create_access_token(identity=user.id, fresh=True)
+    refresh_token = create_refresh_token(identity=user.id)
+    return jsonify({"access_token": access_token, "refresh_token": refresh_token})
 
-    return jsonify({"message": "User registered successfully"})
+@auth.route("/refresh", methods=["POST"])
+def refresh():
+    identity = get_jwt_identity()
+    access_token = create_access_token(identity=identity, fresh=True)
+    return jsonify({"access_token": access_token}),200
+
+@auth.route("/logout", methods=["POST"])
+@jwt_required
+def logout():
+    jti = get_jwt()['jti']
+    db.session.add(TokenBlocklist(jti=jti))
+    db.session.commit()
+    return jsonify({"message": "Successfully logged out"}), 200
+
+
+
+
