@@ -17,7 +17,5 @@ app.register_blueprint(auth)
 def index():
     return "Hello"
 
-
-
 if __name__=="__main__":
     app.run(debug=True)
