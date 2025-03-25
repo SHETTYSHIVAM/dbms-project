@@ -10,7 +10,7 @@ class Books(db.Model):
     isbn = db.Column(db.String(50), primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     author = db.Column(db.String(255), nullable=False)
-    genre = db.Column(db.String(255), nullable=False)  # FIXED
+    genre = db.Column(db.String(255), nullable=False)
     published_year = db.Column(db.Integer)
     publisher = db.Column(db.String(255))
     image_url = db.Column(db.String(255), nullable=True)
@@ -20,7 +20,7 @@ class Books(db.Model):
             'isbn': self.isbn,
             'title': self.title,
             'author': self.author,
-            'genre': self.genre,  # FIXED
+            'genre': self.genre,
             'published_year': self.published_year,
             'publisher': self.publisher,
             'image_url': self.image_url,
@@ -32,17 +32,17 @@ class Books(db.Model):
             isbn=data.get('isbn'),
             title=data.get('title'),
             author=data.get('author'),
-            genre=data.get('genre'),  # FIXED
+            genre=data.get('genre'),
             published_year=data.get('published_year'),
             publisher=data.get('publisher'),
-            image_url=data.get('image_url'),  # FIXED
+            image_url=data.get('image_url'),
         )
 
 
 class BookCopies(db.Model):
     __tablename__ = 'bookcopies'
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
-    book_id = db.Column(db.String(50), db.ForeignKey('books.isbn'), nullable=False)  # FIXED
+    book_id = db.Column(db.String(50), db.ForeignKey('books.isbn'), nullable=False)
     copy_number = db.Column(db.Integer, nullable=False)
     is_borrowed = db.Column(db.Boolean, default=False)
 
@@ -165,6 +165,7 @@ class BookRenewals(db.Model):
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
     transaction_id = db.Column(db.String(36), db.ForeignKey('borrowtransactions.id'), nullable=False)
+    renewal_date = db.Column(db.Date, nullable=False, default=lambda: str(date.today()))
     new_due_date = db.Column(db.Date, nullable=True)
     status = db.Column(db.Enum('pending', 'approved', 'rejected', name="renewal_status_enum"), default='pending')  # FIXED
 

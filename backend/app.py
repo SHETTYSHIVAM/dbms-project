@@ -4,6 +4,7 @@ from models import *
 from routes.books import books
 from routes.users import users
 from routes.auth import auth
+from routes.transactions import transactions
 from models import TokenBlocklist
 from config import jwt
 
@@ -14,6 +15,7 @@ with app.app_context():
 app.register_blueprint(books)
 app.register_blueprint(users)
 app.register_blueprint(auth)
+app.register_blueprint(transactions)
 
 @jwt.token_in_blocklist_loader
 def check_if_token_in_blacklist(jwt_header, jwt_payload):

@@ -32,13 +32,14 @@ def register():
     return jsonify({"access_token": access_token, "refresh_token": refresh_token})
 
 @auth.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)
 def refresh():
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity, fresh=True)
     return jsonify({"access_token": access_token}),200
 
 @auth.route("/logout", methods=["POST"])
-@jwt_required
+@jwt_required(refresh=True)
 def logout():
     jti = get_jwt()['jti']
     db.session.add(TokenBlocklist(jti=jti))
