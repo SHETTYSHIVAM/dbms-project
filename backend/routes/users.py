@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from werkzeug.security import generate_password_hash
-from config import db
+from config import db, bcrypt
 from models import Users
 from utils import is_admin
 
@@ -28,7 +27,8 @@ def add_user():
     if not all(key in data for key in ['username', 'email', 'password', 'user_type']):
         return jsonify({'message': 'Missing required fields'}), 400
 
-    hashed_password = generate_password_hash(data['password'])
+    # Use bcrypt to hash the password
+    hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
     new_user = Users(name=data['username'], email=data['email'], user_type=data['user_type'],
                      password_hash=hashed_password)
 
@@ -57,7 +57,7 @@ def update_user(id_):
         user.email = data['email']
 
     if 'password' in data:
-        user.password_hash = generate_password_hash(data['password'])
+        user.password_hash = bcrypt.generate_password_hash(data['password']).decode('utf-8')
 
     for field in ['username', 'user_type']:
         if field in data:
@@ -68,13 +68,14 @@ def update_user(id_):
 
 
 # Delete user (Admin only)
-@users.route('/<string:id_>', methods=['DELETE'])
+@users.route('/', methods=['DELETE'])
 @jwt_required()
-def delete_user(id_):
-    if not is_admin():
+def delete_user():
+    user_id = get_jwt_identity()
+    if not is_admin() or not user_id:
         return jsonify({'message': 'Access denied'}), 403
 
-    user = Users.query.get(id_)
+    user = Users.query.get(user_id)
     if not user:
         return jsonify({'message': 'User not found'}), 404
 

@@ -1,7 +1,6 @@
 from datetime import date
-from werkzeug.security import generate_password_hash, check_password_hash
 from uuid import uuid4
-from config import db
+from config import db, bcrypt
 import datetime
 
 class Books(db.Model):
@@ -74,7 +73,6 @@ class Users(db.Model):
     user_type = db.Column(db.Enum('student', 'faculty', 'admin'), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
 
-
     def to_dict(self):
         return {
             "id": self.id,
@@ -95,14 +93,13 @@ class Users(db.Model):
         return user
 
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        return bcrypt.check_password_hash(self.password_hash, password)
 
     def get_id(self):
         return self.id
-
 
 class BorrowTransactions(db.Model):
     __tablename__ = 'borrowtransactions'
