@@ -2,8 +2,7 @@ from flask import Blueprint, request, jsonify
 from config import db
 from models import Books
 from flask_jwt_extended import jwt_required
-
-from routes.users import is_admin
+from utils import is_admin
 
 books = Blueprint('books', __name__, url_prefix='/books')
 

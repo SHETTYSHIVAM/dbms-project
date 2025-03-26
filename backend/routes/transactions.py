@@ -78,8 +78,22 @@ def return_book():
 
     return jsonify({"message": "Book returned successfully", "fine": fine_amount})
 
+@transactions.route("/pay_fine", methods=["POST"])
+@jwt_required()
+def pay_fine():
+    data = request.json
+    fine_id = data.get("fine_id")
 
-# Renew a book
+    fine = Fines.query.get(fine_id)
+    if not fine or fine.paid:
+        return jsonify({"error": "Invalid fine"}), 400
+
+    fine.paid = True
+    db.session.commit()
+
+    return jsonify({"message": "Fine paid successfully"})
+
+
 @transactions.route("/renew", methods=["POST"])
 @jwt_required()
 def renew_book():
@@ -102,20 +116,3 @@ def renew_book():
     db.session.commit()
 
     return jsonify({"message": "Book renewed successfully", "new_due_date": new_due_date.strftime('%Y-%m-%d')})
-
-
-# Pay fine
-@transactions.route("/pay_fine", methods=["POST"])
-@jwt_required()
-def pay_fine():
-    data = request.json
-    fine_id = data.get("fine_id")
-
-    fine = Fines.query.get(fine_id)
-    if not fine or fine.paid:
-        return jsonify({"error": "Invalid fine"}), 400
-
-    fine.paid = True
-    db.session.commit()
-
-    return jsonify({"message": "Fine paid successfully"})
