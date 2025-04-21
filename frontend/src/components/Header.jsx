@@ -3,12 +3,13 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { IoMenu, IoSearch } from "react-icons/io5";
 import { FaRegUser } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
-import { FaTimes } from "react-icons/fa"; // For closing the sidebar
+import SideBar from "./SideBar";
+import { useAuth } from "../context/AuthContext";
 
 function Header() {
   const location = useLocation();
   const dropDownRef = useRef(null);
-
+  const { isLoggedIn, handleLogout, user } = useAuth();
   // 🧭 Define nav items in one place
   const navItems = [
     { path: "/", label: "Home" },
@@ -16,15 +17,6 @@ function Header() {
     { path: "/requests", label: "Requests" },
     { path: "/donate", label: "Donate" },
   ];
-
-
-const sidebarItems = [
-  {path: '/dashboard', label: 'Dashboard'},
-  {path: '/my-listings', label: 'My Listings'},
-  {path: '/books-requested', label: 'Books Requested'},
-  {path: '/settings', label: 'Settings'},
-  {path: '/help', label: 'Help'},
-]
 
   // 🧵 Refs for nav links
   const navRefs = useRef({});
@@ -35,6 +27,10 @@ const sidebarItems = [
   // Profile Dropdown State
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const toggleProfileMenu = () => setProfileMenuOpen(!profileMenuOpen);
+
+  // Sidebar State
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   // 🔶 Underline position state
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
@@ -50,24 +46,18 @@ const sidebarItems = [
         width: rect.width,
       });
     }
-    function handleClickOutSide(e){
+    function handleClickOutSide(e) {
       if (dropDownRef.current && !dropDownRef.current.contains(e.target)) {
         setProfileMenuOpen(false);
-      }    }
-      if (profileMenuOpen)
-        document.addEventListener("mousedown", handleClickOutSide);
-      else
-        document.removeEventListener("mousedown", handleClickOutSide);
+      }
+    }
+    if (profileMenuOpen)
+      document.addEventListener("mousedown", handleClickOutSide);
+    else document.removeEventListener("mousedown", handleClickOutSide);
     return () => {
       document.removeEventListener("mousedown", handleClickOutSide);
-    }
+    };
   }, [location.pathname, profileMenuOpen]);
-
-  
-
-  // Sidebar State
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return (
     <>
@@ -80,7 +70,7 @@ const sidebarItems = [
             className="cursor-pointer"
           />
           <span className="text-lg font-semibold">LibraryHUB</span>
-          <div className="flex items-center bg-gray-200 dark:bg-zinc-600 text-gray-500 dark:text-gray-200 rounded-md px-4 py-2 w-full max-w-md">
+          <div className="hidden lg:flex items-center bg-gray-200 dark:bg-zinc-600 text-gray-500 dark:text-gray-200 rounded-md px-4 py-2 w-full max-w-md">
             <IoSearch size={20} className="mr-3" />
             <span className="text-sm">Search anything...</span>
           </div>
@@ -94,8 +84,8 @@ const sidebarItems = [
               to={path}
               ref={navRefs.current[path]}
               className={({ isActive }) =>
-                `text-lg h-full flex items-center transition-colors duration-300 ${
-                  isActive ? "text-orange-400 font-medium" : "text-white"
+                `text-lg h-full flex  items-center transition-colors duration-300 ${
+                  isActive ? "text-orange-400 font-medium" : "text-gray-500"
                 }`
               }
             >
@@ -114,53 +104,53 @@ const sidebarItems = [
         </nav>
 
         {/* Right: Profile */}
-        <div className="flex items-center gap-2 dark:text-gray-50 hover:bg-gray-100 dark:hover:bg-zinc-600 p-2 rounded-md cursor-pointer">
-          <FaRegUser size={22} />
-          <span>John Doe</span>
-          <IoIosArrowDown size={20} onClick={toggleProfileMenu} />
-        </div>
+        {isLoggedIn ? (
+          <div className="flex items-center gap-2 dark:text-gray-50 hover:bg-gray-100 dark:hover:bg-zinc-600 p-2 rounded-md cursor-pointer">
+            <FaRegUser size={22} />
+            <span>{user.username}</span>
+            <IoIosArrowDown size={20} onClick={toggleProfileMenu} />
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            className="bg-orange-400 text-white px-4 py-2 rounded-md transition-colors duration-300 hover:bg-orange-500"
+          >
+            Login
+          </Link>
+        )}
 
         {/* Profile Dropdown */}
         {profileMenuOpen && (
-          <div ref={dropDownRef} className="absolute right-6 top-16 bg-white dark:bg-zinc-700 shadow-lg rounded-md w-48 py-2 z-10">
-            <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-600">
+          <div
+            ref={dropDownRef}
+            className="absolute right-6 top-16 bg-white dark:bg-zinc-700 shadow-lg rounded-md w-48 py-2 z-10"
+          >
+            <Link
+              to="/profile"
+              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-600"
+            >
               My Profile
             </Link>
-            <Link to="/settings" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-600">
+            <Link
+              to="/settings"
+              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-600"
+            >
               Settings
             </Link>
-            <Link to="/logout" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-600">
+            <Link
+              onClick={handleLogout}
+              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-600"
+            >
               Logout
             </Link>
           </div>
         )}
       </header>
 
-      <div
-        className={`fixed top-0 left-0 w-64 bg-white shadow-lg h-full transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300`}
-      >
-        <div className="p-4">
-          <FaTimes
-            size={24}
-            onClick={toggleSidebar}
-            className="cursor-pointer absolute top-4 right-4"
-          />
-          <nav className="flex flex-col mt-12 gap-6">
-            {sidebarItems.map(({ path, label }) => (
-              <NavLink
-                key={path}
-                to={path}
-                className="text-lg text-gray-700 hover:text-orange-400"
-                onClick={() => setSidebarOpen(false)} // Close sidebar on click
-              >
-                {label}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
-      </div>
+      {/* Sidebar */}
+      {sidebarOpen && (
+        <SideBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+      )}
     </>
   );
 }

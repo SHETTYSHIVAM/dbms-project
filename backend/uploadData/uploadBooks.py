@@ -1,9 +1,9 @@
 import csv
-from config import db, app
-from models import Books
+from backend.config import db, app
+from backend.models import Books
 
 with app.app_context():
-    with open("books.csv", "r", encoding="utf-8") as file:
+    with open("Books.csv", "r", encoding="utf-8") as file:
         reader = csv.reader(file)
         for row in list(reader)[1:]:
             book = Books(

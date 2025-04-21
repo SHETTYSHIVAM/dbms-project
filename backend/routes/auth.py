@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import TokenBlocklist, Users
+from models import TokenBlocklist, Users, BorrowTransactions, Fines, Reservations
 from config import db
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, jwt_required,
@@ -19,7 +19,7 @@ def login():
 
     access_token = create_access_token(identity=user.id, fresh=True)
     refresh_token = create_refresh_token(identity=user.id)
-    return jsonify({"access_token": access_token, "refresh_token": refresh_token})
+    return jsonify({"access_token": access_token, "refresh_token": refresh_token, "user": user.to_dict()}), 200
 
 
 @auth.route("/register", methods=["POST"])
@@ -65,3 +65,26 @@ def logout():
     db.session.commit()
 
     return jsonify({"message": "Successfully logged out"}), 200
+
+
+@auth.route("/user", methods=["GET"])
+@jwt_required()
+def user():
+    user_id = get_jwt_identity()
+    user = Users.query.get(user_id)
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    borrowed_books = [book.to_dict() for book in BorrowTransactions.query.filter_by(user_id=user_id, is_returned=False)]
+    fines = [fine.to_dict() for fine in Fines.query.filter_by(user_id=user_id)]
+    reservations = [res.to_dict() for res in Reservations.query.filter_by(user_id=user_id)]
+
+    return jsonify({
+        "message": "Successfully logged in",
+        "user": user.to_dict(),
+        "borrowed_books": borrowed_books,
+        "fines": fines,
+        "reservations": reservations,
+    }), 200
+
