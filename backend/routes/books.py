@@ -12,7 +12,7 @@ books = Blueprint('books', __name__, url_prefix='/books')
 @jwt_required()
 def get_books():
     all_books = Books.query.all()
-    return jsonify([book.to_dict() for book in all_books])
+    return jsonify([book.to_dict() for book in all_books][:10])
 
 
 # Get a single book

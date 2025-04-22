@@ -61,7 +61,7 @@ function Header() {
 
   return (
     <>
-      <header className="bg-white dark:bg-zinc-700 dark:text-gray-50 shadow-md h-16 flex items-center justify-between px-6 relative">
+      <header className="bg-white dark:bg-zinc-800 dark:text-gray-50 shadow-md h-16 flex items-center justify-between px-6 relative">
         {/* Left: Logo + Search */}
         <div className="flex items-center gap-6 w-1/2">
           <IoMenu
@@ -123,7 +123,7 @@ function Header() {
         {profileMenuOpen && (
           <div
             ref={dropDownRef}
-            className="absolute right-6 top-16 bg-white dark:bg-zinc-700 shadow-lg rounded-md w-48 py-2 z-10"
+            className="absolute right-6 top-16 bg-white dark:bg-zinc-800 shadow-lg rounded-md w-48 py-2 z-10"
           >
             <Link
               to="/profile"

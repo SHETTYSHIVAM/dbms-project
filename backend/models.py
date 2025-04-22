@@ -1,6 +1,6 @@
 from datetime import date
 from uuid import uuid4
-from config import db, bcrypt
+from backend.config import db, bcrypt
 import datetime
 
 class Books(db.Model):
@@ -13,6 +13,7 @@ class Books(db.Model):
     published_year = db.Column(db.Integer)
     publisher = db.Column(db.String(255))
     image_url = db.Column(db.String(255), nullable=True)
+    language = db.Column(db.String(255), nullable=True)
 
     def to_dict(self):
         return {
