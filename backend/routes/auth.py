@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from models import TokenBlocklist, Users, BorrowTransactions, Fines, Reservations
-from config import db
+from backend.models import TokenBlocklist, Users, BorrowTransactions, Fines, Reservations
+from backend.config import db
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, jwt_required,
     get_jwt_identity, get_jwt

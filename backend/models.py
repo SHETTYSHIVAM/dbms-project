@@ -5,6 +5,7 @@ import datetime
 
 class Books(db.Model):
     __tablename__ = 'books'
+    __table_args__ = {'extend_existing': True}
 
     isbn = db.Column(db.String(50), primary_key=True)
     title = db.Column(db.String(255), nullable=False)
@@ -41,6 +42,8 @@ class Books(db.Model):
 
 class BookCopies(db.Model):
     __tablename__ = 'bookcopies'
+    __table_args__ = {'extend_existing': True}
+
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
     book_id = db.Column(db.String(50), db.ForeignKey('books.isbn'), nullable=False)
     copy_number = db.Column(db.Integer, nullable=False)
@@ -66,6 +69,7 @@ class BookCopies(db.Model):
 
 class Users(db.Model):
     __tablename__ = 'users'
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
     name = db.Column(db.String(255), nullable=False)
@@ -104,6 +108,7 @@ class Users(db.Model):
 
 class BorrowTransactions(db.Model):
     __tablename__ = 'borrowtransactions'
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.String(36), primary_key=True, index=True, default=lambda: str(uuid4()))
     copy_id = db.Column(db.String(36), db.ForeignKey('bookcopies.id'), nullable=False)
@@ -141,6 +146,7 @@ class BorrowTransactions(db.Model):
 
 class Reservations(db.Model):
     __tablename__ = 'reservations'
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
     user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
@@ -160,6 +166,7 @@ class Reservations(db.Model):
 
 class BookRenewals(db.Model):
     __tablename__ = 'bookrenewals'
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
     transaction_id = db.Column(db.String(36), db.ForeignKey('borrowtransactions.id'), nullable=False)
@@ -178,6 +185,7 @@ class BookRenewals(db.Model):
 
 class Fines(db.Model):
     __tablename__ = 'fines'
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
     user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
@@ -202,6 +210,7 @@ class Fines(db.Model):
 
 
 class TokenBlocklist(db.Model):
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(36), nullable=False, unique=True)  # JWT ID
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow())

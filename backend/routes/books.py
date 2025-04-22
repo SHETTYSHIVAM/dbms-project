@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
-from config import db
-from models import Books
+from backend.config import db
+from backend.models import Books
 from flask_jwt_extended import jwt_required
-from utils import is_admin
+from backend.utils import is_admin
 
 books = Blueprint('books', __name__, url_prefix='/books')
 

@@ -1,11 +1,10 @@
-from config import app
-from models import *
+from backend.config import app
+from backend.models import *
 from routes.books import books
 from routes.reservations import reservations
 from routes.users import users
 from routes.auth import auth
 from routes.transactions import transactions
-from models import TokenBlocklist
 from config import jwt
 
 # Create the tables (if they don't exist already)
