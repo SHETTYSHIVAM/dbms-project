@@ -46,9 +46,9 @@ function ViewBook() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center gap-8 p-8 max-w-5xl mx-auto bg-gray-50 dark:bg-zinc-800 rounded-lg shadow-md">
+    <div className="flex flex-col lg:flex-row items-center justify-center gap-8 p-8 max-w-5xl mx-auto bg-gray-50 dark:bg-zinc-800 shadow-md">
       <img
-        src={book.image_url || "/default-book.jpg"}
+        src={book.image_url || "/default-book.png"}
         alt={book.title}
         className="w-72 object-cover rounded-lg shadow-lg"
       />

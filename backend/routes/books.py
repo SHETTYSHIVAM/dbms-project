@@ -11,8 +11,33 @@ books = Blueprint('books', __name__, url_prefix='/books')
 @books.route('/', methods=['GET'])
 @jwt_required()
 def get_books():
-    all_books = Books.query.all()
-    return jsonify([book.to_dict() for book in all_books])
+    query = Books.query
+
+    # Grab query parameters
+    author = request.args.get('author')
+    subject = request.args.get('subject')
+    language = request.args.get('language')
+    published_year = request.args.get('published_year', type=int)
+    publisher = request.args.get('publisher')
+    title = request.args.get('title')
+
+    # Dynamically build filters
+    if author:
+        query = query.filter(Books.author.ilike(f"%{author}%"))
+    if subject:
+        query = query.filter(Books.genre.ilike(f"%{subject}%"))
+    if language:
+        languages = [lang.strip() for lang in language.split(',')]
+        query = query.filter(Books.language.ilike(f"%{language}%"))
+    if published_year:
+        query = query.filter(Books.published_year == published_year)
+    if publisher:
+        query = query.filter(Books.publisher.ilike(f"%{publisher}%"))
+    if title:
+        query = query.filter(Books.title.ilike(f"%{title}%"))
+
+    books = query.all()
+    return jsonify([book.to_dict() for book in books])
 
 
 # Get a single book

@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
 from datetime import date
 from uuid import uuid4
-from models import Reservations
-from config import db
+from backend.models import Reservations
+from backend.config import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from utils import is_admin
+from backend.utils import is_admin
 
 reservations = Blueprint('reservations', __name__, url_prefix='/reservations')
 

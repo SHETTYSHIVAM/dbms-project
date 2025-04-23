@@ -15,6 +15,8 @@ class Books(db.Model):
     publisher = db.Column(db.String(255))
     image_url = db.Column(db.String(255), nullable=True)
     language = db.Column(db.String(255), nullable=True)
+    shelf = db.Column(db.String(255), nullable=True)
+    postion = db.Column(db.String(255), nullable=True)
 
     def to_dict(self):
         return {

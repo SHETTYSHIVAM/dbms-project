@@ -42,7 +42,7 @@ axiosInstance.interceptors.response.use(
             refresh: refreshToken,
           });
 
-          const newAccessToken = res.data.access;
+          const newAccessToken = res.data.access_token;
           localStorage.setItem('access_token', newAccessToken);
 
           // Retry original request with new token
