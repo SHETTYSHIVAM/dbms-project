@@ -25,6 +25,7 @@ class Books(db.Model):
             'published_year': self.published_year,
             'publisher': self.publisher,
             'image_url': self.image_url,
+            'language': self.language
         }
 
     @classmethod
@@ -37,6 +38,7 @@ class Books(db.Model):
             published_year=data.get('published_year'),
             publisher=data.get('publisher'),
             image_url=data.get('image_url'),
+            language=data.get('language')
         )
 
 

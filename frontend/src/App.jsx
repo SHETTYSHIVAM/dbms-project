@@ -7,6 +7,7 @@ import Login from "./components/Login/Login";
 import { ToastContainer } from "react-toastify";
 import { AuthProvider } from "./context/AuthContext";
 import Profile from "./components/Profile/Profile";
+import ViewBook from "./components/ViewBook/ViewBook";
 function App() {
   return (
     <>
@@ -19,6 +20,8 @@ function App() {
           <Route path="/manage-books" element={<ManageBooks />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/books/:id" element={<ViewBook/>} />
+          <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </AuthProvider>
     </>

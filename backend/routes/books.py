@@ -12,7 +12,7 @@ books = Blueprint('books', __name__, url_prefix='/books')
 @jwt_required()
 def get_books():
     all_books = Books.query.all()
-    return jsonify([book.to_dict() for book in all_books][:10])
+    return jsonify([book.to_dict() for book in all_books])
 
 
 # Get a single book
@@ -20,7 +20,10 @@ def get_books():
 @books.route('/<string:id_>', methods=['GET'])
 @jwt_required()
 def get_book(id_):
-    book = Books.query.get_or_404(id_, description="Book not found")
+    book = Books.query.get(id_)
+    if not book:
+        return jsonify({"message": "Book not found"}), 404
+
     return jsonify(book.to_dict())
 
 
