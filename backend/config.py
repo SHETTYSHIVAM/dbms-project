@@ -7,6 +7,8 @@ import urllib
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
+from datetime import timedelta
+
 load_dotenv()
 
 # ACCESS THE VARIABLES
@@ -28,13 +30,15 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure the folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-
 # Use mysql-connector-python with SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
+app.config[
+    'SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
 app.config['SECRET_KEY'] = SECRET_KEY
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=30)  # or hours, days, etc.
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=7)
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)

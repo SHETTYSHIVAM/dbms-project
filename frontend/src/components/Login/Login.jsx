@@ -7,7 +7,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { setIsLoggedIn, setUser, handleLogin } = useAuth();
+  const { handleLogin } = useAuth();
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -92,13 +92,7 @@ const Login = () => {
             </div>
 
             <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 focus:ring-orange-400"
-                />
-                Remember me
-              </label>
+              
               <a
                 href="#"
                 className="text-gray-500 hover:underline dark:text-gray-300"

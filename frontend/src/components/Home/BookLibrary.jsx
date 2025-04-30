@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaRightToBracket } from "react-icons/fa6";
 import BookCard from "./BookCard";
 import axiosInstance from "../../../axios";
-
+import SearchBox from "../SearchBox";
 export default function BookLibrary() {
   const [books, setBooks] = useState([]);
   const [filters, setFilters] = useState({
@@ -13,6 +13,8 @@ export default function BookLibrary() {
     publisher: "",
     title: "",
   });
+
+  const [searchText, setSearchText] = useState("");
 
   const fetchBooks = async () => {
     try {
@@ -57,12 +59,15 @@ export default function BookLibrary() {
             />
           ))}
         </div>
-        <button
-          onClick={fetchBooks}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 mt-4 rounded-xl text-sm font-semibold transition-all"
-        >
-          Search
-        </button>
+        <div className="flex items-center justify-between p-4 gap-4">
+          <SearchBox value={searchText} setValue={setSearchText} />
+          <button
+            onClick={fetchBooks}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+          >
+            Search
+          </button>
+        </div>
 
         <button className="ml-auto bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all">
           <FaRightToBracket />

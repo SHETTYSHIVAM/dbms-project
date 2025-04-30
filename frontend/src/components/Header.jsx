@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { IoMenu, IoSearch } from "react-icons/io5";
+import { IoMenu } from "react-icons/io5";
 import { FaRegUser } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
 import SideBar from "./SideBar";
@@ -70,10 +70,7 @@ function Header() {
             className="cursor-pointer"
           />
           <span className="text-lg font-semibold">LibraryHUB</span>
-          <div className="hidden lg:flex items-center bg-gray-200 dark:bg-zinc-600 text-gray-500 dark:text-gray-200 rounded-md px-4 py-2 w-full max-w-md">
-            <IoSearch size={20} className="mr-3" />
-            <span className="text-sm">Search anything...</span>
-          </div>
+          
         </div>
 
         {/* Center: Nav */}

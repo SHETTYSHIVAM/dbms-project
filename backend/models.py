@@ -15,8 +15,8 @@ class Books(db.Model):
     publisher = db.Column(db.String(255))
     image_url = db.Column(db.String(255), nullable=True)
     language = db.Column(db.String(255), nullable=True)
-    shelf = db.Column(db.String(255), nullable=True)
-    postion = db.Column(db.String(255), nullable=True)
+    # shelf = db.Column(db.String(255), nullable=True)
+    # postion = db.Column(db.String(255), nullable=True)
 
     def to_dict(self):
         return {
@@ -158,6 +158,7 @@ class Reservations(db.Model):
     reservation_date = db.Column(db.Date, nullable=False)
     status = db.Column(db.Enum('pending', 'completed', 'cancelled', name="reservation_status_enum"), default='pending')  # FIXED
 
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -167,6 +168,15 @@ class Reservations(db.Model):
             'status': self.status
         }
 
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            user_id=data.get('user_id'),
+            book_id=data.get('book_id'),
+            reservation_date=date.fromisoformat(data.get('reservation_date')) if data.get('reservation_date') else None,
+            status=data.get('status', 'pending')
+        )
+
 
 class BookRenewals(db.Model):
     __tablename__ = 'bookrenewals'
@@ -174,9 +184,10 @@ class BookRenewals(db.Model):
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
     transaction_id = db.Column(db.String(36), db.ForeignKey('borrowtransactions.id'), nullable=False)
-    renewal_date = db.Column(db.Date, nullable=False, default=lambda: str(date.today()))
+    renewal_date = db.Column(db.Date, nullable=False, default=lambda: date.today())
     new_due_date = db.Column(db.Date, nullable=True)
     status = db.Column(db.Enum('pending', 'approved', 'rejected', name="renewal_status_enum"), default='pending')  # FIXED
+
 
     def to_dict(self):
         return {
@@ -185,6 +196,15 @@ class BookRenewals(db.Model):
             'new_due_date': self.new_due_date.isoformat() if self.new_due_date else None,
             'status': self.status
         }
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            transaction_id=data.get('transaction_id'),
+            renewal_date=date.fromisoformat(data.get('renewal_date')) if data.get('renewal_date') else date.today(),
+            new_due_date=date.fromisoformat(data['new_due_date']) if data.get('new_due_date') else None,
+            status=data.get('status', 'pending')
+        )
 
 
 class Fines(db.Model):
@@ -214,6 +234,7 @@ class Fines(db.Model):
 
 
 class TokenBlocklist(db.Model):
+    __tablename__ = 'token_blocklist'
     __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(36), nullable=False, unique=True)  # JWT ID

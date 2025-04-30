@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, BorrowTransactions, BookCopies, Users, BookRenewals, Fines
+from backend.models import db, BorrowTransactions, BookCopies, Users, BookRenewals, Fines
 from datetime import datetime, timedelta, timezone
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
