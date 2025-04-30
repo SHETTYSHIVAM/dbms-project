@@ -1,7 +1,9 @@
+import datetime
 from datetime import date
 from uuid import uuid4
+
 from backend.config import db, bcrypt
-import datetime
+
 
 class Books(db.Model):
     __tablename__ = 'books'
@@ -15,6 +17,7 @@ class Books(db.Model):
     publisher = db.Column(db.String(255))
     image_url = db.Column(db.String(255), nullable=True)
     language = db.Column(db.String(255), nullable=True)
+
     # shelf = db.Column(db.String(255), nullable=True)
     # postion = db.Column(db.String(255), nullable=True)
 
@@ -70,7 +73,6 @@ class BookCopies(db.Model):
         )
 
 
-
 class Users(db.Model):
     __tablename__ = 'users'
     __table_args__ = {'extend_existing': True}
@@ -109,6 +111,7 @@ class Users(db.Model):
 
     def get_id(self):
         return self.id
+
 
 class BorrowTransactions(db.Model):
     __tablename__ = 'borrowtransactions'
@@ -156,8 +159,8 @@ class Reservations(db.Model):
     user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
     book_id = db.Column(db.String(50), db.ForeignKey('books.isbn'), nullable=False)  # FIXED
     reservation_date = db.Column(db.Date, nullable=False)
-    status = db.Column(db.Enum('pending', 'completed', 'cancelled', name="reservation_status_enum"), default='pending')  # FIXED
-
+    status = db.Column(db.Enum('pending', 'completed', 'cancelled', name="reservation_status_enum"),
+                       default='pending')  # FIXED
 
     def to_dict(self):
         return {
@@ -186,8 +189,8 @@ class BookRenewals(db.Model):
     transaction_id = db.Column(db.String(36), db.ForeignKey('borrowtransactions.id'), nullable=False)
     renewal_date = db.Column(db.Date, nullable=False, default=lambda: date.today())
     new_due_date = db.Column(db.Date, nullable=True)
-    status = db.Column(db.Enum('pending', 'approved', 'rejected', name="renewal_status_enum"), default='pending')  # FIXED
-
+    status = db.Column(db.Enum('pending', 'approved', 'rejected', name="renewal_status_enum"),
+                       default='pending')  # FIXED
 
     def to_dict(self):
         return {
