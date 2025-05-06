@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
 import axiosInstance from "../../../axios";
-import { toast } from "react-toastify";
+import {toast} from "react-toastify";
+import {useAuth} from "../../context/AuthContext";
 
 function ViewBook() {
   const { id } = useParams();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const {user} = useAuth();
   useEffect(() => {
     const fetchBook = async () => {
       try {
         const response = await axiosInstance.get(`/books/${id}`);
         setBook(response.data);
+        console.log(response.data)
       } catch (error) {
         console.error("Error fetching book:", error);
         toast.error("Failed to fetch book details.");
@@ -24,6 +26,24 @@ function ViewBook() {
     };
     fetchBook();
   }, [id]);
+
+  const handleBorrow = async () => {
+    try {
+      const response = await axiosInstance.post('/reservations/', {
+        book_id: book.isbn
+      })
+
+      if (response.status == 201) {
+        toast.success(response.data.message)
+      }
+
+    } catch (error) {
+      toast.error("Something Went Wrong");
+      console.log(error);
+    }
+  }
+
+
 
   if (loading) {
     return (
@@ -75,7 +95,9 @@ function ViewBook() {
         <p className="text-gray-700 dark:text-gray-200 text-justify">{book.description}</p>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+          <button
+              onClick={handleBorrow}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
             Borrow
           </button>
           <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">

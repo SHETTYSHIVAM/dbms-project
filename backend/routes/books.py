@@ -1,11 +1,37 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
+
 from backend.config import db
 from backend.models import Books
-from flask_jwt_extended import jwt_required
 from backend.utils import is_admin
 
 books = Blueprint('books', __name__, url_prefix='/books')
 
+
+def get_language_code(name):
+    LANGUAGE_NAMES = {
+        "English": "eng",
+        "French": "fr",
+        "Spanish": "es",
+        "German": "ger",
+        "Italian": "it",
+        "Portuguese": "pt",
+        "Russian": "ru",
+        "Chinese": "zh",
+        "Japanese": "ja",
+        "Korean": "ko",
+        "Hindi": "hi",
+        "Arabic": "ar",
+        "Bengali": "bn",
+        "Punjabi": "pa",
+        "Tamil": "ta",
+        "Telugu": "te",
+        "Malayalam": "ml",
+        "Kannada": "kn",
+        "Gujarati": "gu",
+        "Urdu": "ur"
+    }
+    return LANGUAGE_NAMES.get(name.title(), None)
 
 # Get all books
 @books.route('/', methods=['GET'])
@@ -23,18 +49,19 @@ def get_books():
 
     # Dynamically build filters
     if author:
-        query = query.filter(Books.author.ilike(f"%{author}%"))
+        query = query.filter(Books.author.like(f"%{author}%"))
     if subject:
-        query = query.filter(Books.genre.ilike(f"%{subject}%"))
+        query = query.filter(Books.genre.like(f"%{subject}%"))
     if language:
-        languages = [lang.strip() for lang in language.split(',')]
-        query = query.filter(Books.language.ilike(f"%{language}%"))
+        language_code = get_language_code(language)
+        if language_code is not None:
+            query = query.filter(Books.language.like(f"%{language_code},%"))
     if published_year:
         query = query.filter(Books.published_year == published_year)
     if publisher:
-        query = query.filter(Books.publisher.ilike(f"%{publisher}%"))
+        query = query.filter(Books.publisher.like(f"%{publisher}%"))
     if title:
-        query = query.filter(Books.title.ilike(f"%{title}%"))
+        query = query.filter(Books.title.like(f"%{title}%"))
 
     books = query.all()
     return jsonify([book.to_dict() for book in books])

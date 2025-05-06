@@ -72,7 +72,7 @@ def return_book():
     # Check if overdue
     overdue_days = (datetime.now(timezone.utc) - datetime.combine(transaction.due_date, datetime.min.time(),
                                                                   timezone.utc)).days
-    fine_amount = max(0, overdue_days * 10)  # Example: ₹10/- per day
+    fine_amount = max(0, overdue_days * 10)
 
     transaction.is_returned = True
     transaction.fine = fine_amount

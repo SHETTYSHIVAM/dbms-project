@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import axiosInstance from "../../../axios";
-import { toast } from "react-toastify";
-import { useAuth } from "../../context/AuthContext";
+import {toast} from "react-toastify";
+import {useAuth} from "../../context/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -81,7 +81,7 @@ const Login = () => {
                 Password
               </label>
               <input
-                type="text"
+                  type="password"
                 id="password"
                 placeholder="••••••••"
                 className="w-full px-4 py-2 rounded-md border border-gray-300 bg-gray-100 dark:bg-zinc-600 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
