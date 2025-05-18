@@ -16,7 +16,7 @@
 ---
 
 ## 📂 Tech Stack
-- **Frontend:** HTML, CSS, JS
+- **Frontend:** React, TailwindCSS
 - **Backend:** Flask
 - **Database:** MySQL
 
