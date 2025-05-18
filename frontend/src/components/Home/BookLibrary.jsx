@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { FaRightToBracket } from "react-icons/fa6";
+import React, {useEffect, useState} from "react";
+import {FaRightToBracket} from "react-icons/fa6";
 import BookCard from "./BookCard";
 import axiosInstance from "../../../axios";
 import SearchBox from "../SearchBox";
+
 export default function BookLibrary() {
   const [books, setBooks] = useState([]);
   const [filters, setFilters] = useState({
@@ -14,24 +15,33 @@ export default function BookLibrary() {
     title: "",
   });
 
+    const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
 
   const fetchBooks = async () => {
+      setLoading(true);
+
     try {
       const params = new URLSearchParams();
 
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(key, value);
       });
-      const response = await axiosInstance.get(`books/?${params.toString()}`);
-      const data = response.data;
-      if (response.status !== 200) {
-        console.error("Failed to fetch books:", response.statusText);
-        return;
+
+        // Construct the URL: if no filters, fetch all books
+        const url = params.toString() ? `books/?${params.toString()}` : `books/`;
+
+        const response = await axiosInstance.get(url);
+
+        if (response.status === 200) {
+            setBooks(response.data);
+        } else {
+            console.error("Unexpected status code:", response.status);
       }
-      setBooks(data);
-    } catch (error) {
-      console.error("Error fetching books:", error);
+    } catch (err) {
+        console.error("Error fetching books:", err);
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -76,7 +86,9 @@ export default function BookLibrary() {
       </div>
 
       {/* Book Grid */}
-      {books.length > 0 ? (
+        {loading ? (
+            <h1>Loading</h1>
+        ) : books.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {books.map((book) => (
             <BookCard key={book.id} book={book} />

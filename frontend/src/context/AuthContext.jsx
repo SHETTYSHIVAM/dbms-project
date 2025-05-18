@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {createContext, useContext, useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
 
 // 1. Create the context
 const AuthContext = createContext();
@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
                 const userData = localStorage.getItem("user");
 
                 if (accessToken && refreshToken && userData) {
-                    setUser(JSON.parse(userData));
+                    setUser(JSON.parse(userData).user);
                     setIsLoggedIn(true);
                 } else {
                     clearAuthState();
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
     const handleLogin = (userData) => {
         setIsLoggedIn(true);
-        setUser(userData);
+        setUser(userData.user);
         localStorage.setItem("accessToken", userData.accessToken);
         localStorage.setItem("refreshToken", userData.refreshToken);
         localStorage.setItem("user", JSON.stringify(userData));

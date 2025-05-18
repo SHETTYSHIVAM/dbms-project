@@ -50,12 +50,13 @@ def get_books():
     # Dynamically build filters
     if author:
         query = query.filter(Books.author.like(f"%{author}%"))
-    if subject:
-        query = query.filter(Books.genre.like(f"%{subject}%"))
     if language:
         language_code = get_language_code(language)
         if language_code is not None:
-            query = query.filter(Books.language.like(f"%{language_code},%"))
+            query = query.filter(Books.language.like(f"%{language_code}%"))
+    if subject:
+        query = query.filter(Books.genre.like(f"%{subject}%"))
+
     if published_year:
         query = query.filter(Books.published_year == published_year)
     if publisher:
