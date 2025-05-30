@@ -10,6 +10,8 @@ import Profile from "./components/Profile/Profile";
 import ViewBook from "./components/ViewBook/ViewBook";
 import AdminRoutes from "./components/AdminRoutes";
 import AdminRequests from "./components/AdminRequests/AdminRequests";
+import Books from "./components/IssueBooks/Books";
+import AdminRegisterUsers from "./components/AdminRegisterUsers";
 
 function App() {
   return (
@@ -29,6 +31,23 @@ function App() {
                 element={
                     <AdminRoutes>
                         <AdminRequests/>
+                    </AdminRoutes>
+                }
+            />
+            <Route
+                path="/issue-books"
+                element={
+                    <AdminRoutes>
+                        <Books/>
+                    </AdminRoutes>
+                }
+            />
+
+            <Route
+                path="/register"
+                element={
+                    <AdminRoutes>
+                        <AdminRegisterUsers/>
                     </AdminRoutes>
                 }
             />

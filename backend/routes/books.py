@@ -1,3 +1,6 @@
+import csv
+from io import StringIO
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
@@ -105,6 +108,52 @@ def add_book():
     db.session.commit()
     return jsonify(new_book.to_dict()), 201
 
+
+@books.route('/bulk-upload', methods=['POST'])
+@jwt_required()
+def bulk_upload_books():
+    try:
+        if not is_admin():
+            return jsonify({'error': 'Access Denied'}), 403
+
+        if 'file' not in request.files:
+            return jsonify({"message": "No file provided"}), 400
+
+        file = request.files['file']
+        if not file.filename.endswith('.csv'):
+            return jsonify({"message": "Invalid file type"}), 400
+
+        stream = StringIO(file.stream.read().decode("UTF8"), newline=None)
+        reader = csv.DictReader(stream)
+
+        inserted = 0
+        skipped = 0
+        errors = []
+
+        for row in reader:
+            subject = row.get("Subject")
+            title = row.get("Title")
+            author = row.get("Author")
+            published_year = row.get("Published Year")
+            language = row.get("Language")
+            image = row.get("Cover URL")
+            publisher = row.get("Publisher")
+
+            if not any([subject, title, author, published_year]):
+                skipped += 1
+                continue
+
+            books = Books(title=title, author=author, genre=subject, published_year=published_year, image_url=image,
+                          language=language)
+            db.session.add(books)
+            inserted += 1
+
+        db.session.commit()
+        return jsonify({"message": f"{inserted} books added successfully", "skipped": skipped}), 200
+
+    except ZeroDivisionError as e:
+        print(e)
+        return jsonify({'error': 'Failed to upload books'}), 500
 
 # Update a book
 @books.route('/<string:id_>', methods=['PUT'])

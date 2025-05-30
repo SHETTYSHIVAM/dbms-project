@@ -1,10 +1,15 @@
+import csv
+from io import StringIO
+
 from flask import Blueprint, request, jsonify
-from backend.models import TokenBlocklist, Users, BorrowTransactions, Fines, Reservations
-from backend.config import db
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, jwt_required,
     get_jwt_identity, get_jwt
 )
+
+from backend.config import db
+from backend.models import TokenBlocklist, Users, BorrowTransactions, Fines, Reservations
+from backend.utils import is_admin
 
 auth = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -88,3 +93,38 @@ def user():
         "reservations": reservations,
     }), 200
 
+
+@auth.route("/bulk_register", methods=["POST"])
+def bulk_register():
+    if not is_admin():
+        return jsonify({''})
+    if 'file' not in request.files:
+        return jsonify({"message": "No file provided"}), 400
+
+    file = request.files['file']
+    if not file.filename.endswith('.csv'):
+        return jsonify({"message": "Invalid file type"}), 400
+
+    stream = StringIO(file.stream.read().decode("UTF8"), newline=None)
+    reader = csv.DictReader(stream)
+
+    added_users = 0
+    for row in reader:
+        email = row.get("email")
+        username = row.get("username")
+        password = row.get("password")
+        user_type = row.get("user_type", "student")
+
+        if not email or not username or not password:
+            continue
+
+        if Users.query.filter_by(email=email).first():
+            continue
+
+        user = Users(email=email, name=username, user_type=user_type)
+        user.set_password(password)
+        db.session.add(user)
+        added_users += 1
+
+    db.session.commit()
+    return jsonify({"message": f"{added_users} users registered successfully"}), 200

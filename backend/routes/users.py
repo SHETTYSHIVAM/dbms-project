@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from config import db, bcrypt
-from models import Users
-from utils  import is_admin
+
+from backend.config import db, bcrypt
+from backend.models import Users
+from backend.utils import is_admin
 
 users = Blueprint('users', __name__, url_prefix='/users')
 

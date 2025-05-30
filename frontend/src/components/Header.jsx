@@ -1,22 +1,27 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
-import { IoMenu } from "react-icons/io5";
-import { FaRegUser } from "react-icons/fa";
-import { IoIosArrowDown } from "react-icons/io";
-import SideBar from "./SideBar";
-import { useAuth } from "../context/AuthContext";
+import React, {useEffect, useRef, useState} from "react";
+import {Link, NavLink, useLocation} from "react-router-dom";
+import {FaRegUser} from "react-icons/fa";
+import {IoIosArrowDown} from "react-icons/io";
+import {useAuth} from "../context/AuthContext";
 
 function Header() {
   const location = useLocation();
   const dropDownRef = useRef(null);
   const { isLoggedIn, handleLogout, user } = useAuth();
-  // 🧭 Define nav items in one place
-  const navItems = [
-    { path: "/", label: "Home" },
-    { path: "/issue", label: "Issue Book" },
-    { path: "/requests", label: "Requests" },
-    { path: "/donate", label: "Donate" },
-  ];
+    const navItems =
+        user?.user_type === "admin"
+            ? [
+                {path: "/", label: "Home"},
+                {path: "/requests", label: "Requests"},
+                {path: "/issue-books", label: "Issue Book"},
+                {path: "/register", label: "Register Users"},
+                {path: "/manage-books", label: "Manage Books"},
+                {path: "/dashboard", label: "Dashboard"},
+            ]
+            : [
+                {path: "/", label: "Home"},
+                {path: "/dashboard", label: "Dashboard"},
+            ];
 
   // 🧵 Refs for nav links
   const navRefs = useRef({});
@@ -27,10 +32,6 @@ function Header() {
   // Profile Dropdown State
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const toggleProfileMenu = () => setProfileMenuOpen(!profileMenuOpen);
-
-  // Sidebar State
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   // 🔶 Underline position state
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
@@ -64,13 +65,7 @@ function Header() {
       <header className="bg-white dark:bg-zinc-800 dark:text-gray-50 shadow-md h-16 flex items-center justify-between px-6 relative">
         {/* Left: Logo + Search */}
         <div className="flex items-center gap-6 w-1/2">
-          <IoMenu
-            size={24}
-            onClick={toggleSidebar}
-            className="cursor-pointer"
-          />
           <span className="text-lg font-semibold">LibraryHUB</span>
-          
         </div>
 
         {/* Center: Nav */}
@@ -143,11 +138,6 @@ function Header() {
           </div>
         )}
       </header>
-
-      {/* Sidebar */}
-      {sidebarOpen && (
-        <SideBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-      )}
     </>
   );
 }

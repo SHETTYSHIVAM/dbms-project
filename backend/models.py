@@ -1,4 +1,6 @@
 import datetime
+import random
+import string
 from datetime import date
 from uuid import uuid4
 
@@ -9,7 +11,7 @@ class Books(db.Model):
     __tablename__ = 'books'
     __table_args__ = {'extend_existing': True}
 
-    isbn = db.Column(db.String(50), primary_key=True)
+    isbn = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid4()))
     title = db.Column(db.String(255), nullable=False)
     author = db.Column(db.String(255), nullable=False)
     genre = db.Column(db.String(255), nullable=False)
@@ -73,6 +75,9 @@ class BookCopies(db.Model):
         )
 
 
+def generate_short_id(length=6):
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+
 class Users(db.Model):
     __tablename__ = 'users'
     __table_args__ = {'extend_existing': True}
@@ -111,7 +116,6 @@ class Users(db.Model):
 
     def get_id(self):
         return self.id
-
 
 class BorrowTransactions(db.Model):
     __tablename__ = 'borrowtransactions'
@@ -218,13 +222,15 @@ class Fines(db.Model):
     user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.Enum('unpaid', 'paid'), default='unpaid')
+    transaction_id = db.Column(db.String(36), db.ForeignKey('borrowtransactions.id'), nullable=False)
 
     def to_dict(self):
         return {
             'id': self.id,
             'user_id': self.user_id,
             'amount': self.amount,
-            'status': self.status
+            'status': self.status,
+            'transaction_id': self.transaction_id
         }
 
     @classmethod
@@ -232,7 +238,8 @@ class Fines(db.Model):
         return cls(
             user_id=data.get('user_id'),
             amount=data.get('amount'),
-            status=data.get('status', 'unpaid')
+            status=data.get('status', 'unpaid'),
+            transaction_id=data.get('transaction_id')
         )
 
 

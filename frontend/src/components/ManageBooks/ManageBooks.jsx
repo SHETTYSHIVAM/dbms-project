@@ -1,46 +1,211 @@
- import React from "react";
-    import { IoMdDownload, IoMdSearch, IoMdArrowDropdown } from "react-icons/io";
-    import { BooksTable } from "./BooksTable";
+import React, {useEffect, useState} from 'react';
+import axiosInstance from '../../../axios';
+import {FaEdit, FaTimes, FaTrash, FaUpload} from 'react-icons/fa';
 
-    function ManageBooks() {
+const ManageBooks = () => {
+    const [books, setBooks] = useState([]);
+    const [form, setForm] = useState({
+        isbn: '',
+        title: '',
+        author: '',
+        genre: '',
+        published_year: '',
+        publisher: '',
+        image_url: '',
+        language: ''
+    });
+    const [editingIsbn, setEditingIsbn] = useState(null);
+    const [csvFile, setCsvFile] = useState(null);
+
+    const token = localStorage.getItem('token');
+
+    useEffect(() => {
+        fetchBooks();
+    }, []);
+
+    const fetchBooks = async () => {
+        try {
+            const res = await axiosInstance.get('/books/', {
+                headers: {Authorization: `Bearer ${token}`}
+            });
+            setBooks(res.data);
+        } catch (err) {
+            console.error('Fetch error:', err);
+        }
+    };
+
+    const handleChange = (e) => {
+        setForm({...form, [e.target.name]: e.target.value});
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const url = editingIsbn ? `/books/${editingIsbn}` : '/books/';
+        const method = editingIsbn ? 'put' : 'post';
+
+        try {
+            await axiosInstance[method](url, form, {
+                headers: {Authorization: `Bearer ${token}`}
+            });
+            setForm({
+                isbn: '',
+                title: '',
+                author: '',
+                genre: '',
+                published_year: '',
+                publisher: '',
+                image_url: '',
+                language: ''
+            });
+            setEditingIsbn(null);
+            fetchBooks();
+        } catch (err) {
+            console.error('Submit error:', err);
+        }
+    };
+
+    const handleEdit = (book) => {
+        setForm(book);
+        setEditingIsbn(book.isbn);
+    };
+
+    const handleDelete = async (isbn) => {
+        try {
+            await axiosInstance.delete(`/books/${isbn}`, {
+                headers: {Authorization: `Bearer ${token}`}
+            });
+            fetchBooks();
+        } catch (err) {
+            console.error('Delete error:', err);
+        }
+    };
+
+    const handleCSVUpload = async () => {
+        if (!csvFile) return;
+
+        const formData = new FormData();
+        formData.append('file', csvFile);
+
+        try {
+            await axiosInstance.post('/books/bulk-upload', formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            fetchBooks();
+            alert('CSV upload completed');
+        } catch (err) {
+            console.error('CSV upload error:', err);
+            alert('CSV upload failed');
+        }
+    };
+
     return (
-        <div className="mt-8 p-8 space-y-6 bg-gray-200 dark:bg-gray-900">
-        <div className="flex justify-between p-2 my-4">
-            <h1 className="text-2xl font-semibold dark:text-gray-50 text-gray-500">
-            Manage Books
-            </h1>
-            <button className="flex bg-orange-400 px-4 py-2 rounded-lg items-center gap-2 font-bold text-white">
-            Download <IoMdDownload />
-            </button>
+        <div className="p-6 max-w-6xl mx-auto">
+            <h2 className="text-3xl font-semibold mb-4">Manage Books</h2>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit}
+                  className="grid grid-cols-2 md:grid-cols-3 gap-4 bg-white p-4 rounded shadow mb-6">
+                {Object.keys(form).map((field) => (
+                    <input
+                        key={field}
+                        type={field === 'published_year' ? 'number' : 'text'}
+                        name={field}
+                        placeholder={field.replace('_', ' ')}
+                        value={form[field]}
+                        onChange={handleChange}
+                        required={['isbn', 'title', 'author', 'genre'].includes(field)}
+                        disabled={field === 'isbn' && editingIsbn}
+                        className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                ))}
+                <div className="col-span-2 md:col-span-3 flex gap-2">
+                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                        {editingIsbn ? 'Update' : 'Add'} Book
+                    </button>
+                    {editingIsbn && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setForm({
+                                    isbn: '',
+                                    title: '',
+                                    author: '',
+                                    genre: '',
+                                    published_year: '',
+                                    publisher: '',
+                                    image_url: '',
+                                    language: ''
+                                });
+                                setEditingIsbn(null);
+                            }}
+                            className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded flex items-center gap-1"
+                        >
+                            <FaTimes/> Cancel
+                        </button>
+                    )}
         </div>
-        <div className="bg-gray-50 rounded-lg dark:bg-zinc-700 text-gray-700 p-4 dark:text-gray-50">
-            <div className="flex w-full flex-wrap items-center justify-between px-4">
-            <h2 className="text-xl text-gray-700 font-semibold dark:text-gray-50">
-                Book Listing
-            </h2>
-            <h3 className="text-md text-gray-400 dark:text-gray-200">
-                2300 Total
-            </h3>
-            <div className="flex items-center bg-gray-200 shadow-sm dark:bg-zinc-600 text-gray-500 dark:text-gray-200 rounded-sm px-4 w-full max-w-md">
-                <IoMdSearch size={20} className="mr-3" />
+            </form>
+
+            {/* CSV Upload */}
+            <div className="bg-white p-4 rounded shadow mb-6">
+                <h3 className="text-xl font-medium mb-2 flex items-center gap-2">
+                    <FaUpload/> Bulk Upload via CSV
+                </h3>
                 <input
-                type="text"
-                placeholder="Search anything..."
-                className="bg-gray-200 dark:bg-zinc-600 text-gray-700 dark:text-gray-200 rounded-sm px-4 py-2 w-full max-w-md"
+                    type="file"
+                    accept=".csv"
+                    onChange={(e) => setCsvFile(e.target.files[0])}
+                    className="mb-2"
                 />
+                <button
+                    onClick={handleCSVUpload}
+                    disabled={!csvFile}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded disabled:opacity-50"
+                >
+                    Upload CSV
+                </button>
+                <p className="text-sm text-gray-600 mt-1">
+                    CSV should have headers: <code>Subject,Title,Author,Published Year,Language,Cover
+                    URL,Publisher</code>
+                </p>
             </div>
-            <div className="flex active:scale-95 items-center dark:bg-zinc-600 dark:hover:bg-zinc-500 transition-colors hover:bg-gray-100 py-2 px-4 rounded-lg">
-                <p>Sort By</p>
-                <IoMdArrowDropdown/>
+
+            {/* Books Table */}
+            <div className="overflow-auto bg-white rounded shadow">
+                <table className="w-full text-left border border-gray-300">
+                    <thead className="bg-gray-100">
+                    <tr>
+                        {Object.keys(form).map(field => (
+                            <th key={field} className="p-2 border">{field}</th>
+                        ))}
+                        <th className="p-2 border">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {books.map(book => (
+                        <tr key={book.isbn} className="border-t">
+                            {Object.keys(form).map(field => (
+                                <td key={field} className="p-2 border">{book[field]}</td>
+                            ))}
+                            <td className="p-2 border flex gap-2">
+                                <button onClick={() => handleEdit(book)} className="text-blue-600 hover:text-blue-800">
+                                    <FaEdit/>
+                                </button>
+                                <button onClick={() => handleDelete(book.isbn)}
+                                        className="text-red-600 hover:text-red-800">
+                                    <FaTrash/>
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
             </div>
-            <button className="px-4 py-2 border-2 border-gray-500 hover:bg-gray-200 dark:hover:bg-zinc-500 active:scale-95 font-semibold transition-colors">
-                Add New Book
-            </button>
-            </div>
-            <BooksTable/>
-        </div>
         </div>
     );
-    }
+};
 
-    export default ManageBooks;
+export default ManageBooks;

@@ -1,11 +1,12 @@
 from backend.config import app
+from backend.config import jwt
 from backend.models import *
-from routes.books import books
-from routes.reservations import reservations
-from routes.users import users
-from routes.auth import auth
-from routes.transactions import transactions
-from config import jwt
+from backend.routes.auth import auth
+from backend.routes.books import books
+from backend.routes.dashboard import dashboard
+from backend.routes.reservations import reservations
+from backend.routes.transactions import transactions
+from backend.routes.users import users
 
 # Create the tables (if they don't exist already)
 with app.app_context():
@@ -16,6 +17,7 @@ app.register_blueprint(users)
 app.register_blueprint(auth)
 app.register_blueprint(transactions)
 app.register_blueprint(reservations)
+app.register_blueprint(dashboard)
 
 
 @jwt.token_in_blocklist_loader

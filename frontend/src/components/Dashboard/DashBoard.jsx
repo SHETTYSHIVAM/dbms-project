@@ -1,21 +1,48 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
+import axiosInstance from '../../../axios'
 import StatsCard from './StatsCard'
+
 import bookIcon from '../../assets/icons/book.png'
 import activeUser from '../../assets/icons/active-user.png'
 import memberIcon from '../../assets/icons/members.png'
 import rupeeIcon from '../../assets/icons/rupee.png'
 import donateIcon from '../../assets/icons/donate.png'
 
+const iconMap = {
+    'Total Books': bookIcon,
+    'Books Issued': activeUser,
+    'Active Users': activeUser,
+    'Books Donated': donateIcon,
+    'Members': memberIcon,
+    'Fine Collected': rupeeIcon,
+}
+
 function DashBoard() {
-  const stats = [
-    { title: 'Total Books', value: 1201, icon: bookIcon, percent: 10 },
-    { title: 'Books Issued', value: 50, icon: activeUser, percent: 5 },
-    { title: 'Active Users', value: 200, icon: activeUser, percent: -5 },
-    { title: 'Books Donated', value: 20, icon: donateIcon, percent: 15 },
-    { title: 'Members', value: 150, icon: memberIcon, percent: 8 },
-    { title: 'Fine Collected', value: 500, icon: rupeeIcon, percent: 12 },
-    
-  ]
+    const [stats, setStats] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        axiosInstance.get('dashboard/')
+            .then((res) => {
+                if (res.data.success) {
+                    const enrichedStats = res.data.data.map(stat => ({
+                        ...stat,
+                        icon: iconMap[stat.title] || bookIcon,
+                    }))
+                    setStats(enrichedStats)
+                } else {
+                    throw new Error(res.data.error || 'Failed to fetch stats')
+                }
+            })
+            .catch((err) => {
+                setError(err.message || 'An error occurred')
+            })
+            .finally(() => setLoading(false))
+    }, [])
+
+    if (loading) return <div className='p-6 text-gray-700 dark:text-white'>Loading stats...</div>
+    if (error) return <div className='p-6 text-red-600'>Error: {error}</div>
 
   return (
     <div className='min-h-screen bg-gray-300 dark:bg-neutral-950 p-6'>
@@ -28,7 +55,7 @@ function DashBoard() {
             key={index}
             title={stat.title}
             icon={stat.icon}
-            percent={stat.percent}
+
             value={stat.value}
           />
         ))}
